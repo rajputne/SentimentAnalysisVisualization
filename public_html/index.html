@@ -1,0 +1,1860 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <script src="jquery-3.2.1.js">
+        </script>
+        <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">   
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+        <link rel="stylesheet" href="http://cdn.datatables.net/1.10.2/css/jquery.dataTables.min.css">
+        <script type="text/javascript" src="http://cdn.datatables.net/1.10.2/js/jquery.dataTables.min.js"></script>
+        <script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script> 
+
+        <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script> 
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+        <script src="http://d3js.org/d3.v3.min.js" language="JavaScript"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.13/d3.min.js"></script>
+        <script src="liquidFillGauge.js" language="JavaScript"></script>
+
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+
+
+        <script src="xls.js"></script>
+
+        <style>
+            .liquidFillGaugeText { font-family: Helvetica; font-weight: bold; }
+
+
+            body {
+                background: -webkit-linear-gradient(left, #ffffff, #F4F1F1); /* For Safari 5.1 to 6.0 */
+                background: -o-linear-gradient(right, #ffffff, #F4F1F1); /* For Opera 11.1 to 12.0 */
+                background: -moz-linear-gradient(right, #ffffff, #F4F1F1); /* For Firefox 3.6 to 15 */
+                background: linear-gradient(to right, #ffffff, #F4F1F1); /* Standard syntax (must be last) */
+            }
+
+            table {
+                border-collapse: collapse;
+            }
+
+            th, td {
+                text-align: left;
+                padding: 8px;
+            }
+
+            tr:nth-child(even){background-color: #f2f2f2}
+            tr:nth-child(odd){background-color: #ffffff}
+
+            .axis path,
+            .axis line {
+                fill: none;
+                stroke: #000;
+                shape-rendering: crispEdges;
+            }
+
+            .bar {
+                fill: steelblue;
+            }
+
+            .x.axis path {
+                display: none;
+            }
+
+            .tooltip{
+                text-anchor: middle;
+                font-family: sans-serif;
+                font-size: 10px;
+                font-weight: bold;
+                fill:black; 
+                opacity:100;
+            }
+
+
+            .bar{ fill: yellow;
+            }
+            .label{ fill:black;
+                    font-size: 20px
+            }
+            .display tr {
+                cursor: pointer;
+            }
+            .scoreClass tr {
+                cursor: pointer;
+            }
+            table.scoreClass {border: 1px solid #839E99;
+            }
+            .scoreClass td {border: 1px solid #839E99;}
+            .scoreClass th {border: 1px solid #839E99;}
+
+            path.link {
+                fill: none;
+                stroke: #666;
+                stroke-width: 1.5px;
+            }
+
+            path.link.twofive {
+                opacity: 0.25;
+                stroke: #00FF00;
+            }
+
+            path.link.fivezero {
+                opacity: 0.50;
+                stroke:#FFFF00;    
+            }
+
+            path.link.sevenfive {
+                opacity: 0.75;
+                stroke:#FBCA04;
+            }
+
+            path.link.onezerozero {
+                opacity: 1.0;
+                stroke:#FF0000;
+            }
+
+            circle {
+                fill: #0f0b0b;
+
+                border-radius: 20px;
+
+            }
+
+            .pointerHover{
+                cursor: pointer;
+            }
+
+            .container { white-space: nowrap;}
+            .column { display: inline-block; width: 50%;}
+            .center {
+                margin: auto;
+                width: 50%;
+                border: 3px solid green;
+                padding: 10px;
+            }
+        </style>
+        <script>
+            var gauge3 = null;
+
+
+
+            function filterGlobal() {
+                $('#mytable').DataTable().search(
+                        $('#global_filter').val(),
+                        $('#global_regex').prop('checked'),
+                        $('#global_smart').prop('checked')
+                        ).draw();
+            }
+
+            function filterColumn(i) {
+                $('#mytable').DataTable().column(i).search(
+                        $('#col' + i + '_filter').val(),
+                        $('#col' + i + '_regex').prop('checked'),
+                        $('#col' + i + '_smart').prop('checked')
+                        ).draw();
+            }
+            var conceptName = "";
+
+
+            $(document).ready(function () {
+                redirectMe();
+            });
+
+
+            function redirectMe() {
+                var countBetweenZeroToTenPos = 0;
+                var countBetweenZeroToTenNeg = 0;
+                var countBetweenZeroToTenNeu = 0;
+
+                var countBetweenTenToTwentyPos = 0;
+                var countBetweenTenToTwentyNeg = 0;
+                var countBetweenTenToTwentyNeu = 0;
+
+                var countBetweenTwentyToThirtyPos = 0;
+                var countBetweenTwentyToThirtyNeg = 0;
+                var countBetweenTwentyToThirtyNeu = 0;
+
+                var countBetweenThirtyToFortyPos = 0;
+                var countBetweenThirtyToFortyNeg = 0;
+                var countBetweenThirtyToFortyNeu = 0;
+
+                var countBetweenFortyToFiftyPos = 0;
+                var countBetweenFortyToFiftyNeu = 0;
+                var countBetweenFortyToFiftyNeg = 0;
+
+                var countBetweenFiftyToSixtyPos = 0;
+                var countBetweenFiftyToSixtyNeu = 0;
+                var countBetweenFiftyToSixtyNeg = 0;
+
+                var countBetweenSixtyToSeventyPos = 0;
+                var countBetweenSixtyToSeventyNeu = 0;
+                var countBetweenSixtyToSeventyNeg = 0;
+
+                var countBetweenSeventyToEightyPos = 0;
+                var countBetweenSeventyToEightyNeu = 0;
+                var countBetweenSeventyToEightyNeg = 0;
+
+                var countBetweenEightyToNintyPos = 0;
+                var countBetweenEightyToNintyNeu = 0;
+                var countBetweenEightyToNintyNeg = 0;
+
+                var countBetweenNintyToHunderedPos = 0;
+                var countBetweenNintyToHunderedNeu = 0;
+                var countBetweenNintyToHunderedNeg = 0;
+
+                conceptName = $('#aioConceptName').find(":selected").val();
+
+                var myvar = '<center>' +
+                        '                <h2>Stacked Bar Chart Sum Of Scores vs Sentiments</h2>' +
+                        '                <div id="stackedBarChart"> <center> <label><input type="checkbox"> Sort values</label></center></div>' +
+                        '            </center>' +
+                        '            <center><h2>Search Table</h2></center> ' +
+                        '            <table cellpadding="3" cellspacing="0" border="0" style="width: 67%; margin: 0 auto 2em auto;">' +
+                        '' +
+                        '                <thead>' +
+                        '                    <tr>' +
+                        '                        <th>Target</th>' +
+                        '                        <th>Search text</th>' +
+                        '                        <th>Treat as regex</th>' +
+                        '                        <th>Use smart search</th>' +
+                        '                    </tr>' +
+                        '                </thead>' +
+                        '                <tbody>' +
+                        '                    <tr id="filter_global">' +
+                        '                        <td>Global search</td>' +
+                        '                        <td align="center"><input type="text" class="global_filter" id="global_filter"></td>' +
+                        '                        <td align="center"><input type="checkbox" class="global_filter" id="global_regex"></td>' +
+                        '                        <td align="center"><input type="checkbox" class="global_filter" id="global_smart" checked="checked"></td>' +
+                        '                    </tr>' +
+                        '                    <tr id="filter_col1" data-column="0">' +
+                        '                        <td>Column - SR Number</td>' +
+                        '                        <td align="center"><input type="text" class="column_filter" id="col0_filter"></td>' +
+                        '                        <td align="center"><input type="checkbox" class="column_filter" id="col0_regex"></td>' +
+                        '                        <td align="center"><input type="checkbox" class="column_filter" id="col0_smart" checked="checked"></td>' +
+                        '                    </tr>' +
+                        '                    <tr id="filter_col2" data-column="1">' +
+                        '                        <td>Column - SR Comments</td>' +
+                        '                        <td align="center"><input type="text" class="column_filter" id="col1_filter"></td>' +
+                        '                        <td align="center"><input type="checkbox" class="column_filter" id="col1_regex"></td>' +
+                        '                        <td align="center"><input type="checkbox" class="column_filter" id="col1_smart" checked="checked"></td>' +
+                        '                    </tr>' +
+                        '                    <tr id="filter_col3" data-column="2">' +
+                        '                        <td>Column - Sentiments</td>' +
+                        '                        <td align="center"><input type="text" class="column_filter" id="col2_filter"></td>' +
+                        '                        <td align="center"><input type="checkbox" class="column_filter" id="col2_regex"></td>' +
+                        '                        <td align="center"><input type="checkbox" class="column_filter" id="col2_smart" checked="checked"></td>' +
+                        '                    </tr>' +
+                        '                    <tr id="filter_col4" data-column="3">' +
+                        '                        <td>Column - Sum of Scores</td>' +
+                        '                        <td align="center"><input type="text" class="column_filter" id="col3_filter"></td>' +
+                        '                        <td align="center"><input type="checkbox" class="column_filter" id="col3_regex"></td>' +
+                        '                        <td align="center"><input type="checkbox" class="column_filter" id="col3_smart" checked="checked"></td>' +
+                        '                    </tr>' +
+                        '                    <tr id="filter_col5" data-column="4">' +
+                        '                        <td>Column - Sentiment Scores</td>' +
+                        '                        <td align="center"><input type="text" class="column_filter" id="col4_filter"></td>' +
+                        '                        <td align="center"><input type="checkbox" class="column_filter" id="col4_regex"></td>' +
+                        '                        <td align="center"><input type="checkbox" class="column_filter" id="col4_smart" checked="checked"></td>' +
+                        '                    </tr>' +
+                        '                    <tr id="filter_col5" data-column="5">' +
+                        '                        <td>Column - FE Responsible</td>' +
+                        '                        <td align="center"><input type="text" class="column_filter" id="col5_filter"></td>' +
+                        '                        <td align="center"><input type="checkbox" class="column_filter" id="col5_regex"></td>' +
+                        '                        <td align="center"><input type="checkbox" class="column_filter" id="col5_smart" checked="checked"></td>' +
+                        '                    </tr>' +
+                        '                    <tr id="filter_col6" data-column="6">' +
+                        '                        <td>Column - Customer</td>' +
+                        '                        <td align="center"><input type="text" class="column_filter" id="col6_filter"></td>' +
+                        '                        <td align="center"><input type="checkbox" class="column_filter" id="col6_regex"></td>' +
+                        '                        <td align="center"><input type="checkbox" class="column_filter" id="col6_smart" checked="checked"></td>' +
+                        '                    </tr>' +
+                        '                    <tr id="filter_col7" data-column="7">' +
+                        '                        <td>Column - Geography</td>' +
+                        '                        <td align="center"><input type="text" class="column_filter" id="col7_filter"></td>' +
+                        '                        <td align="center"><input type="checkbox" class="column_filter" id="col7_regex"></td>' +
+                        '                        <td align="center"><input type="checkbox" class="column_filter" id="col7_smart" checked="checked"></td>' +
+                        '                    </tr>' +
+                        '                    <tr id="filter_col8" data-column="8">' +
+                        '                        <td>Column - SR Type</td>' +
+                        '                        <td align="center"><input type="text" class="column_filter" id="col8_filter"></td>' +
+                        '                        <td align="center"><input type="checkbox" class="column_filter" id="col8_regex"></td>' +
+                        '                        <td align="center"><input type="checkbox" class="column_filter" id="col8_smart" checked="checked"></td>' +
+                        '                    </tr>' +
+                        '                </tbody>' +
+                        '' +
+                        '            </table>' +
+                        '            <center> <h2>Sentiment Table</h2></center>' +
+                        '' +
+                        '            <table id="mytable">' +
+                        '                <thead>' +
+                        '                    <tr>' +
+                        '                        <th>SR Number</th>' +
+                        '                        <th>SR Comments</th>' +
+                        '                        <th>Sentiments</th>' +
+                        '                        <th>Sum Of Scores </th>' +
+                        '                        <th>Sentiment Scores </th>' +
+                        '                        <th>FE Responsible </th>' +
+                        '                        <th>Customer </th>' +
+                        '                        <th>Geography </th>' +
+                        '                        <th>SR Type </th>' +
+                        '                    </tr>' +
+                        '                </thead>' +
+                        '' +
+                        '            </table>' +
+                        '            <center>' +
+                        '                <div id="fullSRScores"><table id="fullRowScoreCardTable" class="scoreClass display" onclick="tableClick()">' +
+                        '                    </table>' +
+                        '                    <div id="scoreChart"></div>' +
+                        '                    <div id="gaugecharts">' +
+                        '                        <svg id="fillgauge3" width="25%" height="300">' +
+                        '                        <text x="90" y="290" font-family="Verdana" font-size="14" id="paramText">' +
+                        '                        </text>' +
+                        '                        </svg>' +
+                        '                        <svg id="fillgauge5" width="25%" height="300">' +
+                        '                        <text x="115" y="290" font-family="Verdana" font-size="14">' +
+                        '                        Sum of Scores %' +
+                        '                        </text>' +
+                        '                        </svg>' +
+                        '                    </div>' +
+                        '                </div>' +
+                        '            </center>' +
+                        '' +
+                        '            <div class="container">' +
+                        '                <div class="column"> <center><h2>Pie Chart</h2><div id="chart"></div></center></div>' +
+                        '                <div class="column"> <center><h2>Frequency Chart</h2><div id="chart2"></div></center></div>' +
+                        '            </div>' +
+                        '            <div id="chart3"></div>' +
+                        '' +
+                        '' +
+                        '' +
+                        '            <button id="Test" type="button">Stop Graph Movement!</button>' +
+                        '            <input type="file" id="my_file_input">' +
+                        '            <div id="Output">' +
+                        '                <h3 align="Center"> Table representing number of hops between status</h3>' +
+                        '                <table id="myTable" align="Center">' +
+                        '                </table>' +
+                        '                <h3 align="Center"> Table representing status in same state</h3>' +
+                        '                <table id="myTable2" align="Center">' +
+                        '                </table>' +
+                        '                <h3 align="Center"> Network graph representing state change for a SR</h3>' +
+                        '            </div>';
+
+                var obj = null;
+                var count = 0;
+                var countPositive = 0;
+                var countNegative = 0;
+                var countNeutral = 0;
+
+
+
+                $("#myBody").empty();
+                console.log("Body" + $("#myBody").html());
+                $("#myBody").html(myvar);
+                jQuery.getJSON(conceptName, function (data) {
+                    // data is an array of objects
+                    obj = data;
+                    $('#mytable').DataTable({
+                        "aaData": obj,
+                        "aoColumns": [{
+                                "mDataProp": "srNumber"},
+                            {"mDataProp": "surveyComments"},
+                            {"mDataProp": "sentiment"},
+                            {"mDataProp": "sumOfScores"
+                            }, {"mDataProp": "sentimentScore"},
+
+                            {"mDataProp": "FEResponsible"},
+                            {"mDataProp": "submitterSite"},
+                            {"mDataProp": "submitterPlatform"}, {"mDataProp": "srType"}
+                        ]
+
+                    });
+                    $('#mytable').DataTable();
+
+                    $('input.global_filter').on('keyup click', function () {
+                        filterGlobal();
+                    });
+
+                    $('input.column_filter').on('keyup click', function () {
+                        filterColumn($(this).parents('tr').attr('data-column'));
+                    });
+
+                    var config2 = liquidFillGaugeDefaultSettings();
+
+                    config2.circleThickness = 0.1;
+                    config2.circleFillGap = 0.1;
+                    config2.textVertPosition = 0.8;
+                    config2.waveAnimateTime = 2000;
+                    config2.waveHeight = 0.3;
+                    config2.waveCount = 1;
+                    gauge3 = loadLiquidFillGauge("fillgauge3", 0, config2);
+
+                    var config4 = liquidFillGaugeDefaultSettings();
+                    config4.circleThickness = 0.15;
+                    config4.circleColor = "#808015";
+                    config4.textColor = "#555500";
+                    config4.waveTextColor = "#FFFFAA";
+                    config4.waveColor = "#AAAA39";
+                    config4.textVertPosition = 0.8;
+                    config4.waveAnimateTime = 1000;
+                    config4.waveHeight = 0.05;
+                    config4.waveAnimate = true;
+                    config4.waveRise = false;
+                    config4.waveHeightScaling = false;
+                    config4.waveOffset = 0.25;
+                    config4.textSize = 0.75;
+                    config4.waveCount = 3;
+                    var gauge5 = loadLiquidFillGauge("fillgauge5", 0, config4);
+
+                    var table = $('#mytable').DataTable();
+                    var d = document.getElementById("mytable");
+                    d.className += " display";
+                    $('#mytable tbody').on('click', 'tr', function () {
+                        var data = table.row(this).data();
+                        document.getElementById("fullRowScoreCardTable").innerHTML = "";
+                        var scoreTable = document.getElementById("fullRowScoreCardTable");
+                        var trh = document.createElement('tr');
+                        var th1 = document.createElement('th');
+                        var text11 = document.createTextNode("Parameters");
+                        var th2 = document.createElement('th');
+                        var text12 = document.createTextNode("Scores");
+                        var th3 = document.createElement('th');
+                        var text13 = document.createTextNode("Highest Score Possible");
+
+                        th1.appendChild(text11);
+                        th2.appendChild(text12);
+                        th3.appendChild(text13);
+
+                        trh.appendChild(th1);
+                        trh.appendChild(th2);
+                        trh.appendChild(th3);
+                        scoreTable.appendChild(trh);
+
+                        jQuery.getJSON("dyanamicScoreWeightage.json", function (data1) {
+                            console.log(data1);
+                            console.log(data1.supportHelpfulScoreWeightage);
+                            //Put the Weightages here
+                            $('#fullRowScoreCardTable tr:last').after('<tr><td>Support Representative Helpfulness</td><td>' + data.supportRepresentativeHelpfulness + '</td><td>'+data1.supportHelpfulScoreWeightage+'</td></tr>');
+                            $('#fullRowScoreCardTable tr:last').after('<tr><td>Helpful Score</td><td>' + data.helpfulScore + '</td><td>'+data1.helpfulScoreWeightage+'</td></tr>');
+
+                            $('#fullRowScoreCardTable tr:last').after('<tr><td>Communication Quality</td><td>' + data.communicationQuality + '</td><td>'+data1.communicationQualityWeightage+'</td></tr>');
+                            $('#fullRowScoreCardTable tr:last').after('<tr><td>Communication Score</td><td>' + data.communicationScore + '</td><td>'+data1.communicationScoreWeightage+'</td></tr>');
+
+                            $('#fullRowScoreCardTable tr:last').after('<tr><td>Product Knowledge</td><td>' + data.productKnowledge + '</td><td>'+data1.productKnowledgeWeightage+'</td></tr>');
+                            $('#fullRowScoreCardTable tr:last').after('<tr><td>Product Knowledge Score</td><td>' + data.productKnowledgeScore + '</td><td>'+data1.productKnowledgeScoreWeightage+'</td></tr>');
+
+                            $('#fullRowScoreCardTable tr:last').after('<tr><td>Customer Service Quality</td><td>' + data.customerServiceQuality + '</td><td>'+data1.csqWeightage+'</td></tr>');
+                            $('#fullRowScoreCardTable tr:last').after('<tr><td>Customer Service Score</td><td>' + data.customerServiceScore + '</td><td>'+data1.csqScoreWeightage+'</td></tr>');
+
+                            $('#fullRowScoreCardTable tr:last').after('<tr><td>Sentiment Weightage</td><td>' + data.sentimentWeightage + '</td><td>'+data1.sentimentWeigtage+'</td></tr>');
+                            $('#fullRowScoreCardTable tr:last').after('<tr><th>Sum Of Scores</th><th>' + data.sumOfScores + '</th><th>100</th></tr>');
+                            gauge5.update(data.sumOfScores);
+
+                            gauge3.update(0);
+
+                        });
+
+                        //alert('Hi');
+                    });
+
+
+
+
+                    var zeroToTen = 0;
+                    var tenToTwenty = 0;
+                    var twentyToThirty = 0;
+                    var thirtyToForty = 0;
+                    var fortyToFifty = 0;
+                    var fiftyToSixty = 0;
+                    var sixtyToSeventy = 0;
+                    var seventyToEighty = 0;
+                    var eightyToNinty = 0;
+                    var ninetyToHundered = 0;
+                    var countOverallNeutral = 0;
+
+
+
+                    for (var i = 0; i < obj.length; i++)
+                    {
+                        var surveyComments = obj[i]["surveyComments"];
+                        var sumOfScores = obj[i]["sumOfScores"];
+                        sumOfScores = parseInt(sumOfScores);
+                        var sentiment = obj[i]["sentiment"];
+                        if (surveyComments)
+                        {
+                            count++;
+                            if (sentiment === "Positive")
+                            {
+                                countPositive++;
+                            }
+                            if (sentiment === "Neutral")
+                            {
+                                countNeutral++;
+                            }
+                            if (sentiment === "Negative")
+                            {
+                                countNegative++;
+                            }
+                            if (sumOfScores > 0 && sumOfScores <= 10)
+                            {
+                                if (sentiment === "Positive")
+                                {
+                                    countBetweenZeroToTenPos++;
+                                }
+                                if (sentiment === "Neutral")
+                                {
+                                    countBetweenZeroToTenNeu++;
+                                }
+                                if (sentiment === "Negative")
+                                {
+                                    countBetweenZeroToTenNeg++;
+                                }
+                            }
+                            if (sumOfScores > 10 && sumOfScores <= 20) {
+                                if (sentiment === "Positive")
+                                {
+                                    countBetweenTenToTwentyPos++;
+                                }
+                                if (sentiment === "Neutral")
+                                {
+                                    countBetweenTenToTwentyNeu++;
+                                }
+                                if (sentiment === "Negative")
+                                {
+                                    countBetweenTenToTwentyNeg++;
+                                }
+                            }
+                            if (sumOfScores > 20 && sumOfScores <= 30) {
+                                if (sentiment === "Positive")
+                                {
+                                    countBetweenTwentyToThirtyPos++;
+                                }
+                                if (sentiment === "Neutral")
+                                {
+                                    countBetweenTwentyToThirtyNeu++;
+
+                                }
+                                if (sentiment === "Negative")
+                                {
+                                    countBetweenTwentyToThirtyNeg++;
+                                }
+                            }
+                            if (sumOfScores > 30 && sumOfScores <= 40)
+                            {
+                                if (sentiment === "Positive")
+                                {
+                                    countBetweenThirtyToFortyPos++;
+                                }
+                                if (sentiment === "Neutral")
+                                {
+                                    countBetweenThirtyToFortyNeu++;
+
+                                }
+                                if (sentiment === "Negative")
+                                {
+                                    countBetweenThirtyToFortyNeg++;
+                                }
+                            }
+                            if (sumOfScores > 40 && sumOfScores <= 50)
+                            {
+                                if (sentiment === "Positive")
+                                {
+                                    countBetweenFortyToFiftyPos++;
+                                }
+                                if (sentiment === "Neutral")
+                                {
+                                    countBetweenFortyToFiftyNeu++;
+                                }
+                                if (sentiment === "Negative")
+                                {
+                                    countBetweenFortyToFiftyNeg++;
+                                }
+                            }
+                            if (sumOfScores > 50 && sumOfScores <= 60)
+                            {
+                                if (sentiment === "Positive")
+                                {
+                                    countBetweenFiftyToSixtyPos++;
+                                }
+                                if (sentiment === "Neutral")
+                                {
+                                    countBetweenFiftyToSixtyNeu++;
+                                }
+                                if (sentiment === "Negative")
+                                {
+                                    countBetweenFiftyToSixtyNeg++;
+                                }
+                            }
+                            if (sumOfScores > 60.0 && sumOfScores <= 70.0) {
+                                if (sentiment === "Positive")
+                                {
+                                    countBetweenSixtyToSeventyPos++;
+                                }
+                                if (sentiment === "Neutral")
+                                {
+                                    countBetweenSixtyToSeventyNeu++;
+                                }
+                                if (sentiment === "Negative")
+                                {
+                                    countBetweenSixtyToSeventyNeg++;
+                                }
+                            }
+                            if (sumOfScores > 70.0 && sumOfScores <= 80.0) {
+                                if (sentiment === "Positive")
+                                {
+                                    countBetweenSeventyToEightyPos++;
+                                }
+                                if (sentiment === "Neutral")
+                                {
+                                    countBetweenSeventyToEightyNeu++;
+                                }
+                                if (sentiment === "Negative")
+                                {
+                                    countBetweenSeventyToEightyNeg++;
+                                }
+
+                            }
+                            if (sumOfScores > 80.0 && sumOfScores <= 90.0) {
+                                if (sentiment === "Positive")
+                                {
+                                    countBetweenEightyToNintyPos++;
+                                }
+                                if (sentiment === "Neutral")
+                                {
+                                    countBetweenEightyToNintyNeu++;
+                                }
+                                if (sentiment === "Negative")
+                                {
+                                    countBetweenEightyToNintyNeg++;
+                                }
+                            }
+                            if (sumOfScores > 90.0 && sumOfScores <= 100.0) {
+                                if (sentiment === "Positive")
+                                {
+                                    countBetweenNintyToHunderedPos++;
+                                }
+                                if (sentiment === "Neutral")
+                                {
+                                    countBetweenNintyToHunderedNeu++;
+                                }
+                                if (sentiment === "Negative")
+                                {
+                                    countBetweenNintyToHunderedNeg++;
+                                }
+                            }
+                        }
+                        if (sentiment === "Neutral")
+                        {
+                            countOverallNeutral++;
+                        }
+
+                        if (sumOfScores > 0 && sumOfScores <= 10)
+                        {
+                            zeroToTen++;
+                        }
+                        if (sumOfScores > 10 && sumOfScores <= 20) {
+                            tenToTwenty++;
+                        }
+                        if (sumOfScores > 20 && sumOfScores <= 30) {
+                            twentyToThirty++;
+                        }
+                        if (sumOfScores > 30 && sumOfScores <= 40)
+                        {
+                            thirtyToForty++;
+                        }
+                        if (sumOfScores > 40 && sumOfScores <= 50)
+                        {
+                            fortyToFifty++;
+                        }
+                        if (sumOfScores > 50 && sumOfScores <= 60)
+                        {
+                            fiftyToSixty++;
+                        }
+                        if (sumOfScores > 60.0 && sumOfScores <= 70.0) {
+                            sixtyToSeventy++;
+                        }
+                        if (sumOfScores > 70.0 && sumOfScores <= 80.0) {
+                            seventyToEighty++;
+                        }
+                        if (sumOfScores > 80.0 && sumOfScores <= 90.0) {
+                            eightyToNinty++;
+                        }
+                        if (sumOfScores > 90.0 && sumOfScores <= 100.0) {
+                            ninetyToHundered++;
+                        }
+                    }
+
+                    var json = {
+                        "items": [
+                            {
+                                "label": "0-10",
+                                "n": zeroToTen
+                            },
+                            {
+                                "label": "10-20",
+                                "n": tenToTwenty
+                            },
+                            {
+                                "label": "20-30",
+                                "n": twentyToThirty
+                            },
+                            {
+                                "label": "30-40",
+                                "n": thirtyToForty
+                            },
+                            {
+                                "label": "40-50",
+                                "n": fortyToFifty
+                            },
+
+                            {
+                                "label": "50-60",
+                                "n": fiftyToSixty
+                            },
+                            {
+                                "label": "60-70",
+                                "n": sixtyToSeventy
+                            },
+                            {
+                                "label": "70-80",
+                                "n": seventyToEighty
+                            },
+                            {
+                                "label": "80-90",
+                                "n": eightyToNinty
+                            },
+                            {
+                                "label": "90-100",
+                                "n": ninetyToHundered
+                            }
+                        ]
+                    };
+
+                    var w = 400,
+                            h = 500;
+
+                    var svg = d3.select("#chart2")
+                            .append("svg")
+                            .attr("width", w)
+                            .attr("height", h);
+
+                    var data = json.items;
+
+                    var max_n = 0;
+                    for (var d in data) {
+                        max_n = Math.max(data[d].n, max_n);
+                    }
+
+                    var dx = w / max_n;
+                    var dy = h / data.length;
+
+                    // bars
+                    var bars = svg.selectAll(".bar")
+                            .data(data)
+                            .enter()
+                            .append("rect")
+                            .attr("class", function (d, i) {
+                                return "bar";
+                            })
+                            .attr("x", function (d, i) {
+                                return 0;
+                            })
+                            .attr("y", function (d, i) {
+                                return dy * i;
+                            })
+                            .attr("width", function (d, i) {
+
+                                return dx * d.n;
+                            })
+                            .attr("height", dy * 0.85);
+
+                    // labels
+                    var text = svg.selectAll("text")
+                            .data(data)
+                            .enter()
+                            .append("text")
+                            .attr("class", function (d, i) {
+                                return "label";
+                            })
+                            .attr("x", 5)
+                            .attr("y", function (d, i) {
+                                return dy * i + 30;
+                            })
+                            .text(function (d) {
+                                return d.label + " (" + d.n + ")";
+                            })
+                            .style("font-weight", "bold");
+                    var w = 400, //width
+                            h = 500, //height
+                            r = 150, //radius
+                            color = d3.scale.category10();     //builtin range of colors
+
+                    data = [{"label": "Neutral:" + countNeutral, "value": countNeutral},
+                        {"label": "Negative:" + countNegative, "value": countNegative},
+                        {"label": "Positive:" + countPositive, "value": fullRowScoreCardTable}
+                    ];
+
+                    var vis = d3.select("#chart")
+                            .append("svg:svg")              //create the SVG element inside the <body>
+                            .data([data])                   //associate our data with the document
+                            .attr("width", 300)           //set the width and height of our visualization (these will be attributes of the <svg> tag
+                            .attr("height", 500)
+                            .append("svg:g")                //make a group to hold our pie chart
+                            .attr("transform", "translate(" + r + "," + r + ")")    //move the center of the pie chart from 0, 0 to radius, radius
+
+                    var arc = d3.svg.arc()              //this will create <path> elements for us using arc data
+                            .outerRadius(r);
+
+                    var pie = d3.layout.pie()           //this will create arc data for us given a list of values
+                            .value(function (d) {
+                                return d.value;
+                            });    //we must tell it out to access the value of each element in our data array
+
+                    var arcs = vis.selectAll("g.slice")     //this selects all <g> elements with class slice (there aren't any yet)
+                            .data(pie)                          //associate the generated pie data (an array of arcs, each having startAngle, endAngle and value properties) 
+                            .enter()                            //this will create <g> elements for every "extra" data element that should be associated with a selection. The result is creating a <g> for every object in the data array
+                            .append("svg:g")                //create a group to hold each slice (we will have a <path> and a <text> element associated with each slice)
+                            .attr("class", "slice");    //allow us to style things in the slices (like text)
+
+                    arcs.append("svg:path")
+                            .attr("fill", function (d, i) {
+                                return color(i);
+                            }) //set the color for each slice to be chosen from the color function defined above
+                            .attr("d", arc);                                    //this creates the actual SVG path using the associated data (pie) with the arc drawing function
+
+                    arcs.append("svg:text")                                     //add a label to each slice
+                            .attr("transform", function (d) {                    //set the label's origin to the center of the arc
+                                //we have to make sure to set these before calling arc.centroid
+                                d.innerRadius = 0;
+                                d.outerRadius = r;
+                                return "translate(" + arc.centroid(d) + ")";        //this gives us a pair of coordinates like [50, 50]
+                            })
+                            .attr("text-anchor", "middle")                          //center the text on it's origin
+                            .text(function (d, i) {
+                                return data[i].label;
+                            })
+                            .attr("fill", "white");
+
+                    //Stacked Bar Chart Sum Of Scores vs Sentiments
+
+
+                    //Update Stacked Bar Chart
+                    var margin = {top: 20, right: 20, bottom: 30, left: 40},
+                            width = 960 - margin.left - margin.right,
+                            height = 500 - margin.top - margin.bottom;
+
+                    var x = d3.scale.ordinal()
+                            .rangeRoundBands([0, width], .1);
+
+                    var y = d3.scale.linear()
+                            .rangeRound([height, 0]);
+
+                    var color = d3.scale.ordinal()
+                            .range(["#2ca02c", "#1f77b4", "#ff7f0e"]);
+
+                    var xAxis = d3.svg.axis()
+                            .scale(x)
+                            .orient("bottom");
+
+                    var yAxis = d3.svg.axis()
+                            .scale(y)
+                            .orient("left")
+                            .tickFormat(d3.format(".2s"));
+
+                    var svg = d3.select("#stackedBarChart").append("svg")
+                            .attr("width", width + margin.left + margin.right)
+                            .attr("height", height + margin.top + margin.bottom)
+                            .append("g")
+                            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+                    var active_link = "0"; //to control legend selections and hover
+                    var legendClicked; //to control legend selections
+                    var legendClassArray = []; //store legend classes to select bars in plotSingle()
+                    var legendClassArray_orig = []; //orig (with spaces)
+                    var sortDescending; //if true, bars are sorted by height in descending order
+                    var restoreXFlag = false; //restore order of bars back to original
+
+
+                    //disable sort checkbox
+                    d3.select("label")
+                            .select("input")
+                            .property("disabled", true)
+                            .property("checked", false);
+//With JSON
+                    (function () {
+                        var data = [
+                            {
+                                "Score": "0-10",
+                                "Positive": countBetweenZeroToTenPos,
+                                "Neutral": countBetweenZeroToTenNeu,
+                                "Negative": countBetweenZeroToTenNeg
+                            }, {
+                                "Score": "10-20",
+                                "Positive": countBetweenTenToTwentyPos,
+                                "Neutral": countBetweenTenToTwentyNeu,
+                                "Negative": countBetweenTenToTwentyNeg
+                            }, {
+                                "Score": "20-30",
+                                "Positive": countBetweenTwentyToThirtyPos,
+                                "Neutral": countBetweenTwentyToThirtyNeu,
+                                "Negative": countBetweenTwentyToThirtyNeg
+                            }, {
+                                "Score": "30-40",
+                                "Positive": countBetweenThirtyToFortyPos,
+                                "Neutral": countBetweenThirtyToFortyNeu,
+                                "Negative": countBetweenThirtyToFortyNeg
+                            },
+                            {
+                                "Score": "40-50",
+                                "Positive": countBetweenFortyToFiftyPos,
+                                "Neutral": countBetweenFortyToFiftyNeu,
+                                "Negative": countBetweenFortyToFiftyNeg
+                            },
+                            {
+
+                                "Score": "50-60",
+                                "Positive": countBetweenFiftyToSixtyPos,
+                                "Neutral": countBetweenFiftyToSixtyNeu,
+                                "Negative": countBetweenFiftyToSixtyNeg
+                            },
+                            {
+                                "Score": "60-70",
+                                "Positive": countBetweenSixtyToSeventyPos,
+                                "Neutral": countBetweenSixtyToSeventyNeu,
+                                "Negative": countBetweenSixtyToSeventyNeg
+                            },
+                            {
+                                "Score": "70-80",
+                                "Positive": countBetweenSeventyToEightyPos,
+                                "Neutral": countBetweenSeventyToEightyNeu,
+                                "Negative": countBetweenSeventyToEightyNeg
+                            },
+                            {
+                                "Score": "80-90",
+                                "Positive": countBetweenEightyToNintyPos,
+                                "Neutral": countBetweenEightyToNintyNeu,
+                                "Negative": countBetweenEightyToNintyNeg
+                            },
+                            {
+                                "Score": "90-100",
+                                "Positive": countBetweenNintyToHunderedPos,
+                                "Neutral": countBetweenNintyToHunderedNeu,
+                                "Negative": countBetweenNintyToHunderedNeg
+                            }
+                        ];
+                        color.domain(d3.keys(data[0]).filter(function (key) {
+                            return key !== "Score";
+                        }));
+
+                        data.forEach(function (d) {
+                            var mystate = d.Score; //add to stock code
+                            var y0 = 0;
+                            //d.ages = color.domain().map(function(name) { return {name: name, y0: y0, y1: y0 += +d[name]}; });
+                            d.ages = color.domain().map(function (name) {
+                                //return { mystate:mystate, name: name, y0: y0, y1: y0 += +d[name]}; });
+                                return {
+                                    mystate: mystate,
+                                    name: name,
+                                    y0: y0,
+                                    y1: y0 += +d[name],
+                                    value: d[name],
+                                    y_corrected: 0
+                                };
+                            });
+                            d.total = d.ages[d.ages.length - 1].y1;
+
+                        });
+
+                        //Sort totals in descending order
+                        data.sort(function (a, b) {
+                            return b.total - a.total;
+                        });
+
+                        x.domain(data.map(function (d) {
+                            return d.Score;
+                        }));
+                        y.domain([0, d3.max(data, function (d) {
+                                return d.total;
+                            })]);
+
+                        svg.append("g")
+                                .attr("class", "x axis")
+                                .attr("transform", "translate(0," + height + ")")
+                                .call(xAxis);
+
+                        svg.append("g")
+                                .attr("class", "y axis")
+                                .call(yAxis)
+                                .append("text")
+                                .attr("transform", "rotate(-90)")
+                                .attr("y", 6)
+                                .attr("dy", ".71em")
+                                .style("text-anchor", "end");
+                        //.text("Population");
+
+                        var state = svg.selectAll(".score")
+                                .data(data)
+                                .enter().append("g")
+                                .attr("class", "g")
+                                .attr("transform", function (d) {
+                                    return "translate(" + "0" + ",0)";
+                                });
+                        //.attr("transform", function(d) { return "translate(" + x(d.State) + ",0)"; })
+
+                        height_diff = 0;  //height discrepancy when calculating h based on data vs y(d.y0) - y(d.y1)
+                        state.selectAll("rect")
+                                .data(function (d) {
+                                    return d.ages;
+                                })
+                                .enter().append("rect")
+                                .attr("width", x.rangeBand())
+                                .attr("y", function (d) {
+                                    height_diff = height_diff + y(d.y0) - y(d.y1) - (y(0) - y(d.value));
+                                    y_corrected = y(d.y1) + height_diff;
+                                    d.y_corrected = y_corrected //store in d for later use in restorePlot()
+
+                                    if (d.name === "65 Years and Over")
+                                        height_diff = 0; //reset for next d.mystate
+
+                                    return y_corrected;
+                                    // return y(d.y1);  //orig, but not accurate  
+                                })
+                                .attr("x", function (d) { //add to stock code
+                                    return x(d.mystate)
+                                })
+                                .attr("height", function (d) {
+                                    //return y(d.y0) - y(d.y1); //heights calculated based on stacked values (inaccurate)
+                                    return y(0) - y(d.value); //calculate height directly from value in csv file
+                                })
+                                .attr("class", function (d) {
+                                    classLabel = d.name.replace(/\s/g, ''); //remove spaces
+                                    return "bars class" + classLabel;
+                                })
+                                .style("fill", function (d) {
+                                    return color(d.name);
+                                });
+
+                        state.selectAll("rect")
+                                .on("mouseover", function (d) {
+
+                                    var delta = d.y1 - d.y0;
+                                    var xPos = parseFloat(d3.select(this).attr("x"));
+                                    var yPos = parseFloat(d3.select(this).attr("y"));
+                                    var height = parseFloat(d3.select(this).attr("height"))
+
+                                    d3.select(this).attr("stroke", "blue").attr("stroke-width", 0.8);
+                                    d3.select(this).attr("class", "pointerHover");
+                                    svg.append("text")
+                                            .attr("x", xPos)
+                                            .attr("y", yPos + height / 2)
+                                            .attr("class", "tooltip")
+                                            .text(d.name + ": " + delta);
+
+                                })
+                                .on("mouseout", function () {
+                                    svg.select(".tooltip").remove();
+                                    d3.select(this).attr("stroke", "pink").attr("stroke-width", 0.2);
+
+                                })
+                                .on("click", function (d)
+                                {
+
+                                    var sentiment = d.name;
+
+                                    var xAxis = d.mystate;
+
+                                    var res = xAxis.split("-");
+                                    var inBetweenValue = parseFloat(res[0]);
+                                    var xc = inBetweenValue + 5;
+                                    console.log(res[0] + ":" + xc + ":" + res[1]);
+                                    var regexText = res[0] + "|" + xc + "|" + res[1];
+                                    $('#col3_regex').attr('checked', true); // Checks it
+                                    $('#col3_smart').attr('checked', false); // Unchecks it
+
+                                    $('#col2_filter').val(sentiment);
+                                    $('#col3_filter').val(regexText);
+                                    $('#col3_filter').focus();
+                                    $('#col3_filter').click();
+                                    $('#col2_filter').focus();
+                                    $('#col2_filter').click();
+                                });
+
+
+                        var legend = svg.selectAll(".legend")
+                                .data(color.domain().slice().reverse())
+                                .enter().append("g")
+                                .attr("class", function (d) {
+                                    legendClassArray.push(d.replace(/\s/g, '')); //remove spaces
+                                    legendClassArray_orig.push(d); //remove spaces
+                                    return "legend";
+                                })
+                                .attr("transform", function (d, i) {
+                                    return "translate(0," + i * 20 + ")";
+                                });
+
+                        //reverse order to match order in which bars are stacked    
+                        legendClassArray = legendClassArray.reverse();
+                        legendClassArray_orig = legendClassArray_orig.reverse();
+
+                        legend.append("rect")
+                                .attr("x", width - 18)
+                                .attr("width", 18)
+                                .attr("height", 18)
+                                .style("fill", color)
+                                .attr("id", function (d, i) {
+                                    return "id" + d.replace(/\s/g, '');
+                                })
+                                .on("mouseover", function () {
+
+                                    if (active_link === "0")
+                                        d3.select(this).style("cursor", "pointer");
+                                    else {
+                                        if (active_link.split("class").pop() === this.id.split("id").pop()) {
+                                            d3.select(this).style("cursor", "pointer");
+                                        } else
+                                            d3.select(this).style("cursor", "auto");
+                                    }
+                                })
+                                .on("click", function (d) {
+
+
+                                    if (active_link === "0") { //nothing selected, turn on this selection
+                                        d3.select(this)
+                                                .style("stroke", "black")
+                                                .style("stroke-width", 2);
+
+                                        active_link = this.id.split("id").pop();
+                                        plotSingle(this);
+
+                                        //gray out the others
+                                        for (i = 0; i < legendClassArray.length; i++) {
+                                            if (legendClassArray[i] != active_link) {
+                                                d3.select("#id" + legendClassArray[i])
+                                                        .style("opacity", 0.5);
+                                            } else
+                                                sortBy = i; //save index for sorting in change()
+                                        }
+
+                                        //enable sort checkbox
+                                        d3.select("label").select("input").property("disabled", false)
+                                        d3.select("label").style("color", "black")
+                                        //sort the bars if checkbox is clicked            
+                                        d3.select("input").on("change", change);
+
+                                    } else { //deactivate
+                                        if (active_link === this.id.split("id").pop()) {//active square selected; turn it OFF
+                                            d3.select(this)
+                                                    .style("stroke", "none");
+
+                                            //restore remaining boxes to normal opacity
+                                            for (i = 0; i < legendClassArray.length; i++) {
+                                                d3.select("#id" + legendClassArray[i])
+                                                        .style("opacity", 1);
+                                            }
+
+
+                                            if (d3.select("label").select("input").property("checked")) {
+                                                restoreXFlag = true;
+                                            }
+
+                                            //disable sort checkbox
+                                            d3.select("label")
+                                                    .style("color", "#D8D8D8")
+                                                    .select("input")
+                                                    .property("disabled", true)
+                                                    .property("checked", false);
+
+
+                                            //sort bars back to original positions if necessary
+                                            change();
+
+                                            //y translate selected category bars back to original y posn
+                                            restorePlot(d);
+
+                                            active_link = "0"; //reset
+                                        }
+
+                                    } //end active_link check
+
+
+                                });
+
+                        legend.append("text")
+                                .attr("x", width - 24)
+                                .attr("y", 9)
+                                .attr("dy", ".35em")
+                                .style("text-anchor", "end")
+                                .text(function (d) {
+                                    return d;
+                                });
+
+                        // restore graph after a single selection
+                        function restorePlot(d) {
+                            //restore graph after a single selection
+                            d3.selectAll(".bars:not(.class" + class_keep + ")")
+                                    .transition()
+                                    .duration(1000)
+                                    .delay(function () {
+                                        if (restoreXFlag)
+                                            return 3000;
+                                        else
+                                            return 750;
+                                    })
+                                    .attr("width", x.rangeBand()) //restore bar width
+                                    .style("opacity", 1);
+
+                            //translate bars back up to original y-posn
+                            d3.selectAll(".class" + class_keep)
+                                    .attr("x", function (d) {
+                                        return x(d.mystate);
+                                    })
+                                    .transition()
+                                    .duration(1000)
+                                    .delay(function () {
+                                        if (restoreXFlag)
+                                            return 2000; //bars have to be restored to orig posn
+                                        else
+                                            return 0;
+                                    })
+                                    .attr("y", function (d) {
+                                        //return y(d.y1); //not exactly correct since not based on raw data value
+                                        return d.y_corrected;
+                                    });
+
+                            //reset
+                            restoreXFlag = false;
+
+                        }
+
+                        // plot only a single legend selection
+                        function plotSingle(d) {
+
+                            class_keep = d.id.split("id").pop();
+                            idx = legendClassArray.indexOf(class_keep);
+
+                            //erase all but selected bars by setting opacity to 0
+                            d3.selectAll(".bars:not(.class" + class_keep + ")")
+                                    .transition()
+                                    .duration(1000)
+                                    .attr("width", 0) // use because svg has no zindex to hide bars so can't select visible bar underneath
+                                    .style("opacity", 0);
+
+                            //lower the bars to start on x-axis  
+                            state.selectAll("rect").forEach(function (d, i) {
+
+                                //get height and y posn of base bar and selected bar
+                                h_keep = d3.select(d[idx]).attr("height");
+                                y_keep = d3.select(d[idx]).attr("y");
+
+                                h_base = d3.select(d[0]).attr("height");
+                                y_base = d3.select(d[0]).attr("y");
+
+                                h_shift = h_keep - h_base;
+                                y_new = y_base - h_shift;
+
+                                //reposition selected bars
+                                d3.select(d[idx])
+                                        .transition()
+                                        .ease("bounce")
+                                        .duration(1000)
+                                        .delay(750)
+                                        .attr("y", y_new);
+
+                            })
+
+                        }
+
+                        //adapted change() fn in http://bl.ocks.org/mbostock/3885705
+                        function change() {
+
+                            if (this.checked)
+                                sortDescending = true;
+                            else
+                                sortDescending = false;
+
+                            colName = legendClassArray_orig[sortBy];
+
+                            var x0 = x.domain(data.sort(sortDescending
+                                    ? function (a, b) {
+                                        return b[colName] - a[colName];
+                                    }
+                            : function (a, b) {
+                                return b.total - a.total;
+                            })
+                                    .map(function (d, i) {
+                                        return d.Score;
+                                    }))
+                                    .copy();
+
+                            state.selectAll(".class" + active_link)
+                                    .sort(function (a, b) {
+                                        return x0(a.mystate) - x0(b.mystate);
+                                    });
+
+                            var transition = svg.transition().duration(750),
+                                    delay = function (d, i) {
+                                        return i * 20;
+                                    };
+
+                            //sort bars
+                            transition.selectAll(".class" + active_link)
+                                    .delay(delay)
+                                    .attr("x", function (d) {
+                                        return x0(d.mystate);
+                                    });
+
+                            //sort x-labels accordingly    
+                            transition.select(".x.axis")
+                                    .call(xAxis)
+                                    .selectAll("g")
+                                    .delay(delay);
+
+
+                            transition.select(".x.axis")
+                                    .call(xAxis)
+                                    .selectAll("g")
+                                    .delay(delay);
+                        }
+
+
+                    })();
+                });
+
+
+                //Complexity Graph
+
+
+
+
+
+                var oFileIn;
+                var mySuperObj;
+                $(function () {
+                    oFileIn = document.getElementById('my_file_input');
+                    if (oFileIn.addEventListener) {
+                        oFileIn.addEventListener('change', filePicked, false);
+                    }
+                });
+
+                obj4 = [];
+
+                var dateObj = new Date();
+                function filePicked(oEvent) {
+                    // Get The File From The Input
+                    var oFile = oEvent.target.files[0];
+                    var sFilename = oFile.name;
+                    // Create A File Reader HTML5
+                    var reader = new FileReader();
+
+                    // Ready The Event For When A File Gets Selected
+                    reader.onload = function (e) {
+                        var data = e.target.result;
+                        var cfb = XLS.CFB.read(data, {type: 'binary'});
+                        var wb = XLS.parse_xlscfb(cfb);
+                        // Loop Over Each Sheet
+                        wb.SheetNames.forEach(function (sheetName) {
+                            // Obtain The Current Row As CSV
+                            var sCSV = XLS.utils.make_csv(wb.Sheets[sheetName]);
+                            var oJS = XLS.utils.sheet_to_row_object_array(wb.Sheets[sheetName]);
+                            dateObj
+
+                            for (var i = oJS.length - 1; i > 0; i--) {
+                                var curr_Obj = oJS[i];
+                                var prev_Obj = oJS[i - 1];
+                                var res = curr_Obj.Date.split(" ");
+                                var res1 = prev_Obj.Date.split(" ");
+                                var currdatesBroken = res[0].split("/");
+                                var prevDatesBroken = res1[0].split("/");
+                                var myDate = new Date(currdatesBroken[0] + "/" + currdatesBroken[1] + "/20" + currdatesBroken[2]);
+                                var myDate1 = new Date(prevDatesBroken[0] + "/" + prevDatesBroken[1] + "/20" + prevDatesBroken[2]);
+
+
+                                var Days = Math.floor((myDate1.getTime() - myDate.getTime()) / (1000 * 60 * 60 * 24));
+                                myLinks = {};
+                                myLinks["source"] = curr_Obj["To Status"];
+                                myLinks["target"] = prev_Obj["To Status"];
+                                myLinks["value"] = Days;
+                                obj4.push(myLinks);
+
+
+                            }//for end
+                        });//Sheetnames end
+
+                        console.log(obj4);
+                        jsonString = JSON.stringify(obj4);
+                        links = obj4
+                        //Add a start Link
+                        myLinks = {};
+                        myLinks["source"] = "Start";
+                        myLinks["target"] = obj4[0].source;
+                        myLinks["value"] = 0;
+                        console.log("Test" + myLinks);
+                        links.unshift(myLinks);
+
+                        //Add and ending Link
+                        myLinks = {};
+                        myLinks["source"] = obj4[obj4.length - 1].target;
+                        myLinks["target"] = "End";
+                        myLinks["value"] = 0;
+                        links.push(myLinks);
+                        console.log(links);
+
+
+                        (function () {
+                            links.sort(function (a, b) {
+                                if (a.source > b.source) {
+                                    return 1;
+                                } else if (a.source < b.source) {
+                                    return -1;
+                                } else {
+                                    if (a.target > b.target) {
+                                        return 1;
+                                    }
+                                    if (a.target < b.target) {
+                                        return -1;
+                                    } else {
+                                        return 0;
+                                    }
+                                }
+                            });
+
+                            var count = 0;
+
+                            document.getElementById("myTable").innerHTML = "";
+                            var table = document.getElementById("myTable");
+                            var trh = document.createElement('tr');
+                            var th1 = document.createElement('th');
+                            var text11 = document.createTextNode("source");
+                            var th2 = document.createElement('th');
+                            var text12 = document.createTextNode("target");
+                            var th3 = document.createElement('th');
+                            var text13 = document.createTextNode("Number of Times Between states");
+
+
+                            th1.appendChild(text11);
+                            th2.appendChild(text12);
+                            th3.appendChild(text13);
+
+                            trh.appendChild(th1);
+                            trh.appendChild(th2);
+                            trh.appendChild(th3);
+                            table.appendChild(trh);
+                            document.getElementById("myTable2").innerHTML = "";
+                            var table2 = document.getElementById("myTable2");
+                            var trh = document.createElement('tr');
+                            var th1 = document.createElement('th');
+                            var text11 = document.createTextNode("source");
+                            var th2 = document.createElement('th');
+                            var text12 = document.createTextNode("target");
+                            var th3 = document.createElement('th');
+                            var text13 = document.createTextNode("Number of Times Between same state");
+
+                            th1.appendChild(text11);
+                            th2.appendChild(text12);
+                            th3.appendChild(text13);
+
+                            trh.appendChild(th1);
+                            trh.appendChild(th2);
+                            trh.appendChild(th3);
+                            table2.appendChild(trh);
+
+                            var obj = new Object();
+                            var jsonVariable = {};
+                            var count = 0;
+                            //any links with duplicate source and target get an incremented 'linknum'
+                            for (var i = 0; i < links.length; i++) {
+
+                                if (i != 0 &&
+                                        links[i].source == links[i - 1].source &&
+                                        links[i].target == links[i - 1].target) {
+                                    links[i].linknum = links[i - 1].linknum + 1;
+                                    jsonVariable[links[i].source + "_" + links[i].target] = links[i].linknum;
+                                    obj.source = links[i].source;
+                                    obj.target = links[i].target;
+                                    obj.value = links[i].linknum;
+                                    var jsonString = JSON.stringify(obj);
+                                } else {
+                                    links[i].linknum = 1;
+
+                                }
+                                ;
+
+                                if (links[i].target == links[i].source)
+                                {
+                                    var tr = document.createElement('tr');
+                                    var td1 = document.createElement('td');
+                                    var text1 = document.createTextNode(links[i].source);
+                                    var td2 = document.createElement('td');
+                                    var text2 = document.createTextNode(links[i].target);
+                                    var td3 = document.createElement('td');
+                                    var text3 = document.createTextNode(links[i].linknum);
+
+                                    td1.appendChild(text1);
+                                    td2.appendChild(text2);
+                                    td3.appendChild(text3);
+
+                                    tr.appendChild(td1);
+                                    tr.appendChild(td2);
+                                    tr.appendChild(td3);
+
+                                    table2.appendChild(tr);
+                                }
+
+
+
+                            }
+                            ;
+                            var obj1 = new Object();
+                            for (var key in jsonVariable) {
+                                if (jsonVariable.hasOwnProperty(key)) {
+
+                                    var res = key.split("_");
+                                    var tr = document.createElement('tr');
+                                    var td1 = document.createElement('td');
+                                    var text1 = document.createTextNode(res[0]);
+                                    obj1.source = res[0];
+                                    obj1.target = res[1];
+                                    obj1.linknum = jsonVariable[key];
+                                    var td2 = document.createElement('td');
+                                    var text2 = document.createTextNode(res[1]);
+                                    var td3 = document.createElement('td');
+                                    var text3 = document.createTextNode(jsonVariable[key]);
+
+                                    td1.appendChild(text1);
+                                    td2.appendChild(text2);
+                                    td3.appendChild(text3);
+
+                                    tr.appendChild(td1);
+                                    tr.appendChild(td2);
+                                    tr.appendChild(td3);
+
+                                    table.appendChild(tr);
+                                }
+                            }
+
+
+
+                            var nodes = {};
+
+                            // Compute the distinct nodes from the links.
+                            links.forEach(function (link) {
+                                link.source = nodes[link.source] ||
+                                        (nodes[link.source] = {name: link.source});
+                                link.target = nodes[link.target] ||
+                                        (nodes[link.target] = {name: link.target});
+                                link.value = +link.value;
+
+                            });
+
+
+
+                            var width = 960, height = 700;
+                            var jsonVariable1 = {};
+                            var obj3 = [];
+                            for (var i = 0; i < links.length; i++) {
+
+                                if (i != 0 &&
+                                        links[i].source == links[i - 1].source &&
+                                        links[i].target == links[i - 1].target) {
+
+                                    links[i].linknum = links[i - 1].linknum + 1;
+                                    links[i].value += links[i - 1].value;
+                                    jsonVariable1[links[i].source.name + "_" + links[i].target.name] = links[i];
+                                    obj.source = links[i].source;
+                                    obj.target = links[i].target;
+                                    obj.value = links[i].linknum;
+                                    var jsonString = JSON.stringify(obj);
+                                } else {
+                                    links[i].linknum = 1;
+                                    jsonVariable1[links[i].source.name + "_" + links[i].target.name] = links[i];
+                                }
+                            }
+                            ;
+
+                            var i = 0;
+                            for (var key in jsonVariable1) {
+
+                                obj3[i] = jsonVariable1[key];
+                                i++;
+                            }
+
+
+                            var force = d3.layout.force()
+                                    .nodes(d3.values(nodes))
+                                    .links(obj3)
+                                    .size([width, height])
+                                    .linkDistance(90)
+                                    .charge(-1000)
+                                    .on("tick", tick)
+                                    .start();
+
+                            $("#Test").click(function () {
+                                force.start();
+                                force.tick();
+                                force.stop();
+                                d3.selectAll("g.nodes").transtion().duration(5000)
+                                        .attr("translate", "transform(" + 50 + "," + 50 + ")");
+                            });
+
+                            // Set the range
+                            var v = d3.scale.linear().range([0, 100]);
+
+                            // Scale the range of the data
+                            v.domain([0, d3.max(links, function (d) {
+                                    return d.value;
+                                })]);
+
+                            // asign a type per value to encode opacity
+                            links.forEach(function (link) {
+                                if (v(link.value) <= 25) {
+                                    link.type = "twofive";
+                                } else if (v(link.value) <= 50 && v(link.value) > 25) {
+                                    link.type = "fivezero";
+                                } else if (v(link.value) <= 75 && v(link.value) > 50) {
+                                    link.type = "sevenfive";
+                                } else if (v(link.value) <= 100 && v(link.value) > 75) {
+                                    link.type = "onezerozero";
+                                }
+
+
+                            });
+                            //Clear the previous graph
+                            $("#container").empty();
+
+                            var svg = d3.select("#container").append("svg")
+                                    .attr("width", width)
+                                    .attr("height", height)
+                                    .attr("id", "");
+
+                            // build the arrow.
+                            svg.append("svg:defs").selectAll("marker")
+                                    .data(["end"])      // Different link/path types can be defined here
+                                    .enter().append("svg:marker")    // This section adds in the arrows
+                                    .attr("id", String)
+                                    .attr("viewBox", "0 -5 10 10")
+                                    .attr("refX", 15)
+                                    .attr("refY", -1.5)
+                                    .attr("markerWidth", 6)
+                                    .attr("markerHeight", 6)
+                                    .attr("orient", "auto")
+                                    .append("svg:path")
+                                    .attr("d", "M0,-5L10,0L0,5");
+
+
+                            // add the links and the arrows
+                            var path = svg.append("svg:g").selectAll("path")
+                                    .data(force.links())
+                                    .enter().append("svg:path")
+                                    .attr("class", function (d) {
+                                        return "link " + d.type;
+                                    })
+                                    .attr("marker-end", "url(#end)")
+                                    .attr("id", function (d, i) {
+                                        return 'path' + i;
+                                    })
+                                    .on("click", function (d) {
+                                        alert("Days taken" + d.value)
+                                    })
+                                    ;
+
+                            var text = svg.append("text");
+
+
+
+
+
+                            path.append("text");
+                            obj3.forEach(function (obj22, i) {
+
+                                text.append("textPath")
+                                        .attr("xlink:href", '#path' + i)
+                                        .attr("text-anchor", "middle")
+                                        .attr("dx", 50)
+                                        .attr("dy", 50)
+                                        .attr("startOffset", "50%")
+                                        .style("fill", "blue")
+                                        .style("background-color", "#FFFF00")
+                                        .text(obj22.linknum);
+
+                            });
+
+
+                            var color = d3.scale.category20();
+                            // define the nodes
+                            var node = svg.selectAll(".node")
+                                    .data(force.nodes())
+                                    .style("fill", function (d) {
+                                        return color(d.value);
+                                    })
+                                    .enter().append("g")
+                                    .attr("class", "node")
+                                    .on("click", click)
+                                    .on("dblclick", dblclick)
+                                    .call(force.drag)
+                                    ;
+
+                            // add the nodes
+                            node.append("circle")
+                                    .attr("r", 5);
+
+
+                            // add the text 
+                            node.append("text")
+                                    .attr("x", 12)
+                                    .attr("dy", ".35em")
+                                    .text(function (d) {
+                                        return d.name;
+                                    });
+
+                            // add the curvy lines
+                            function tick() {
+                                path.attr("d", function (d) {
+                                    var x1 = d.source.x,
+                                            y1 = d.source.y,
+                                            x2 = d.target.x,
+                                            y2 = d.target.y,
+                                            dx = x2 - x1,
+                                            dy = y2 - y1,
+                                            dr = Math.sqrt(dx * dx + dy * dy),
+                                            // Defaults for normal edge.
+                                            drx = dr,
+                                            dry = dr,
+                                            xRotation = 0, // degrees
+                                            largeArc = 0, // 1 or 0
+                                            sweep = 1; // 1 or 0
+
+                                    // Self edge.
+                                    if (x1 === x2 && y1 === y2) {
+                                        // Fiddle with this angle to get loop oriented.
+                                        xRotation = -90;
+
+                                        // Needs to be 1.
+                                        largeArc = 1;
+
+                                        // Change sweep to change orientation of loop. 
+                                        //sweep = 0;
+
+                                        // Make drx and dry different to get an ellipse
+                                        // instead of a circle.
+                                        drx = 20;
+                                        dry = 8;
+
+                                        // For whatever reason the arc collapses to a point if the beginning
+                                        // and ending points of the arc are the same, so kludge it.
+                                        x2 = x2 + 1;
+                                        y2 = y2 + 1;
+                                    }
+                                    return "M" + x1 + "," + y1 + "A" + drx + "," + dry + " " + xRotation + "," + largeArc + "," + sweep + " " + x2 + "," + y2;
+                                });
+
+                                node
+                                        .attr("transform", function (d) {
+                                            return "translate(" + d.x + "," + d.y + ")";
+                                        });
+
+                            }
+
+                            // action to take on mouse click
+                            function click() {
+                                d3.select(this).select("text").transition()
+                                        .duration(750)
+                                        .attr("x", 22)
+                                        .style("fill", "steelblue")
+                                        .style("stroke", "lightsteelblue")
+                                        .style("stroke-width", ".5px")
+                                        .style("font", "20px sans-serif");
+                                d3.select(this).select("circle").transition()
+                                        .duration(750)
+                                        .attr("r", 16)
+                                        .style("fill", "lightsteelblue");
+                            }
+
+                            // action to take on mouse double click
+                            function dblclick() {
+                                d3.select(this).select("circle").transition()
+                                        .duration(750)
+                                        .attr("r", 6)
+                                        .style("fill", "#ccc");
+                                d3.select(this).select("text").transition()
+                                        .duration(750)
+                                        .attr("x", 12)
+                                        .style("stroke", "none")
+                                        .style("fill", "black")
+                                        .style("stroke", "none")
+                                        .style("font", "10px sans-serif");
+                            }
+                        })();
+                        if (obj4.length != 0)
+                        {
+                            obj4 = [];
+                        }
+                    };//reader end
+
+                    // Tell JS To Start Reading The File.. You could delay this if desired
+                    reader.readAsBinaryString(oFile);
+                }
+            }
+
+            function tableClick()
+            {
+                var table = document.getElementById("fullRowScoreCardTable");
+                var rows = table.getElementsByTagName("tr");
+                for (i = 0; i < rows.length; i++) {
+                    var currentRow = table.rows[i];
+                    var createClickHandler =
+                            function (row)
+                            {
+                                return function () {
+                                    var parameter = row.getElementsByTagName("td")[0];
+                                    var parameterValue = row.getElementsByTagName("td")[1];
+                                    var parameterHighestValue = row.getElementsByTagName("td")[2];
+                                    var parameterValue1 = parameterValue.innerHTML;
+                                    var parameterHighestValue1 = parameterHighestValue.innerHTML;
+                                    var parameterString = parameter.innerHTML;
+                                    var percentage = parameterValue1 * 100 / parameterHighestValue1;
+                                    gauge3.update(percentage);
+                                    document.getElementById('paramText').textContent = parameterString + " %";
+                                };
+                            };
+                    currentRow.onclick = createClickHandler(currentRow);
+                }
+            }
+
+        </script>
+
+        <title>CSAT Sentiment Analysis</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+    <center>
+        <svg width="50%" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1">
+        <defs>
+        <linearGradient id="textgradient" x1="0%" x2="0%" y1="0%" y2="50%">
+        <stop stop-color="#ff0000" offset="20%"/>
+        <stop stop-color="#000000" offset="100%"/>
+        </linearGradient>
+
+        </defs>
+        <path id="path" d="m 0 110 h 722.549">
+        <animate attributeName="d" from="m0,110 h0" to="m0,110 h1100" dur="6.8s" begin="0s" repeatCount="indefinite"></animate>
+        </path>
+        <text font-size="40" font-weight="bold" fill="url(#textgradient)" >
+        <textPath xlink:href="#path">CSAT-Sentiment Analysis Tool
+        </textPath>
+        </text>
+        </svg>
+    </center>
+    <div class="center"><center><h4>Please select the algorithm to view the result</h4><select id="aioConceptName" name="myselect" onchange="redirectMe(this);">
+                <option value="file_StanfordNLP.txt">Stanford NLP</option>
+                <option value="file_StanfordNLPWithLemmatization.txt">Stanford with Lemmatization</option>
+                <option value="file_Sentiwordnet.txt">Sentiwordnet</option>
+            </select></center> </div>
+
+    <div id="myBody">
+    </div>
+    <div id="container"></div>
+</body>
+</html>
