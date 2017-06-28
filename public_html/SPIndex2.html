@@ -6,25 +6,25 @@ and open the template in the editor.
 -->
 <html>
     <head>
-        <script src="jquery-3.2.1.js">
+        <script src="https://dscollaboration.dsone.3ds.com/sites/DS-WWSupport/ENOVIA-VPLM/AG_Support_Ops/Sandbox/CSAT_Sentiment_Analysis_Visualization/Documents/js/jquery-3.2.1.js">
         </script>
-        <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">   
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-        <link rel="stylesheet" href="http://cdn.datatables.net/1.10.2/css/jquery.dataTables.min.css">
-        <script type="text/javascript" src="http://cdn.datatables.net/1.10.2/js/jquery.dataTables.min.js"></script>
-        <script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script> 
+        <link href="https://dscollaboration.dsone.3ds.com/sites/DS-WWSupport/ENOVIA-VPLM/AG_Support_Ops/Sandbox/CSAT_Sentiment_Analysis_Visualization/Documents/css/bootstrap.min.css" rel="stylesheet">   
+        <script src="https://dscollaboration.dsone.3ds.com/sites/DS-WWSupport/ENOVIA-VPLM/AG_Support_Ops/Sandbox/CSAT_Sentiment_Analysis_Visualization/Documents/js/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://dscollaboration.dsone.3ds.com/sites/DS-WWSupport/ENOVIA-VPLM/AG_Support_Ops/Sandbox/CSAT_Sentiment_Analysis_Visualization/Documents/css/jquery.dataTables.min.css">
+        <script type="text/javascript" src="https://dscollaboration.dsone.3ds.com/sites/DS-WWSupport/ENOVIA-VPLM/AG_Support_Ops/Sandbox/CSAT_Sentiment_Analysis_Visualization/Documents/js/jquery.dataTables.min.js"></script>
+        <script type="text/javascript" src="https://dscollaboration.dsone.3ds.com/sites/DS-WWSupport/ENOVIA-VPLM/AG_Support_Ops/Sandbox/CSAT_Sentiment_Analysis_Visualization/Documents/js/bootstrap.min.js"></script> 
 
-        <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script> 
-        <script src="https://d3js.org/d3.v4.min.js"></script>
-        <script src="http://d3js.org/d3.v3.min.js" language="JavaScript"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.13/d3.min.js"></script>
-        <script src="liquidFillGauge.js" language="JavaScript"></script>
+        <script type="text/javascript" src="https://dscollaboration.dsone.3ds.com/sites/DS-WWSupport/ENOVIA-VPLM/AG_Support_Ops/Sandbox/CSAT_Sentiment_Analysis_Visualization/Documents/js/jquery-1.12.4.js"></script> 
+        <script src="https://dscollaboration.dsone.3ds.com/sites/DS-WWSupport/ENOVIA-VPLM/AG_Support_Ops/Sandbox/CSAT_Sentiment_Analysis_Visualization/Documents/js/d3.v4.min.js"></script>
+        <script src="https://dscollaboration.dsone.3ds.com/sites/DS-WWSupport/ENOVIA-VPLM/AG_Support_Ops/Sandbox/CSAT_Sentiment_Analysis_Visualization/Documents/js/d3.v3.min.js" language="JavaScript"></script>
+        <script src="https://dscollaboration.dsone.3ds.com/sites/DS-WWSupport/ENOVIA-VPLM/AG_Support_Ops/Sandbox/CSAT_Sentiment_Analysis_Visualization/Documents/js/d3.min.js"></script>
+        <script src="https://dscollaboration.dsone.3ds.com/sites/DS-WWSupport/ENOVIA-VPLM/AG_Support_Ops/Sandbox/CSAT_Sentiment_Analysis_Visualization/Documents/js/liquidFillGauge.js" language="JavaScript"></script>
 
-        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-        <script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+        
+        <script src="https://dscollaboration.dsone.3ds.com/sites/DS-WWSupport/ENOVIA-VPLM/AG_Support_Ops/Sandbox/CSAT_Sentiment_Analysis_Visualization/Documents/js/1.10.15_jquery.dataTables.min.js"></script>
 
 
-        <script src="xls.js"></script>
+        <script src="https://dscollaboration.dsone.3ds.com/sites/DS-WWSupport/ENOVIA-VPLM/AG_Support_Ops/Sandbox/CSAT_Sentiment_Analysis_Visualization/Documents/js/xls.js"></script>
 
         <style>
             .liquidFillGaugeText { font-family: Helvetica; font-weight: bold; }
@@ -157,25 +157,10 @@ and open the template in the editor.
                         ).draw();
             }
             var conceptName = "";
-            var active_link = "0"; //to control legend selections and hover
-            var legendClicked; //to control legend selections
-            var legendClassArray = []; //store legend classes to select bars in plotSingle()
-            var legendClassArray_orig = []; //orig (with spaces)
-            var sortDescending; //if true, bars are sorted by height in descending order
-            var restoreXFlag = false; //restore order of bars back to original
+
 
             $(document).ready(function () {
                 redirectMe();
-                $("#clsGraph").click(
-                        function () {
-                            alert("Handler for .click() called.");
-                            active_link = "0"; //to control legend selections and hover
-                            legendClicked; //to control legend selections
-                            legendClassArray = []; //store legend classes to select bars in plotSingle()
-                            legendClassArray_orig = []; //orig (with spaces)
-                            sortDescending; //if true, bars are sorted by height in descending order
-                            restoreXFlag = false; //restore order of bars back to original
-                        });
             });
 
 
@@ -224,7 +209,7 @@ and open the template in the editor.
 
                 var myvar = '<center>' +
                         '                <h2>Stacked Bar Chart Sum Of Scores vs Sentiments</h2>' +
-                        '                <div id="stackedBarChart"> <center> <label><input type="checkbox"> Sort values</label></center><input type="button" value="Click me" id="clsGraph"/></div>' +
+                        '                 <div id="stackedBarChart"> <center> <label><input type="checkbox"> Sort values</label></center></div>' +
                         '            </center>' +
                         '            <center><h2>Search Table</h2></center> ' +
                         '            <table cellpadding="3" cellspacing="0" border="0" style="width: 67%; margin: 0 auto 2em auto;">' +
@@ -363,12 +348,13 @@ and open the template in the editor.
                 var countNegative = 0;
                 var countNeutral = 0;
 
+
+
                 $("#myBody").empty();
                 console.log("Body" + $("#myBody").html());
                 $("#myBody").html(myvar);
                 jQuery.getJSON(conceptName, function (data) {
                     // data is an array of objects
-
                     obj = data;
                     $('#mytable').DataTable({
                         "aaData": obj,
@@ -446,23 +432,23 @@ and open the template in the editor.
                         trh.appendChild(th3);
                         scoreTable.appendChild(trh);
 
-                        jQuery.getJSON("dyanamicScoreWeightage.json", function (data1) {
+                        jQuery.getJSON("https://dscollaboration.dsone.3ds.com/sites/DS-WWSupport/ENOVIA-VPLM/AG_Support_Ops/Sandbox/CSAT_Sentiment_Analysis_Visualization/Documents/JSON/dyanamicScoreWeightage.txt", function (data1) {
                             console.log(data1);
                             console.log(data1.supportHelpfulScoreWeightage);
                             //Put the Weightages here
-                            $('#fullRowScoreCardTable tr:last').after('<tr><td>Support Representative Helpfulness</td><td>' + data.supportRepresentativeHelpfulness + '</td><td>' + data1.supportHelpfulScoreWeightage + '</td></tr>');
-                            $('#fullRowScoreCardTable tr:last').after('<tr><td>Helpful Score</td><td>' + data.helpfulScore + '</td><td>' + data1.helpfulScoreWeightage + '</td></tr>');
+                            $('#fullRowScoreCardTable tr:last').after('<tr><td>Support Representative Helpfulness</td><td>' + data.supportRepresentativeHelpfulness + '</td><td>'+data1.supportHelpfulScoreWeightage+'</td></tr>');
+                            $('#fullRowScoreCardTable tr:last').after('<tr><td>Helpful Score</td><td>' + data.helpfulScore + '</td><td>'+data1.helpfulScoreWeightage+'</td></tr>');
 
-                            $('#fullRowScoreCardTable tr:last').after('<tr><td>Communication Quality</td><td>' + data.communicationQuality + '</td><td>' + data1.communicationQualityWeightage + '</td></tr>');
-                            $('#fullRowScoreCardTable tr:last').after('<tr><td>Communication Score</td><td>' + data.communicationScore + '</td><td>' + data1.communicationScoreWeightage + '</td></tr>');
+                            $('#fullRowScoreCardTable tr:last').after('<tr><td>Communication Quality</td><td>' + data.communicationQuality + '</td><td>'+data1.communicationQualityWeightage+'</td></tr>');
+                            $('#fullRowScoreCardTable tr:last').after('<tr><td>Communication Score</td><td>' + data.communicationScore + '</td><td>'+data1.communicationScoreWeightage+'</td></tr>');
 
-                            $('#fullRowScoreCardTable tr:last').after('<tr><td>Product Knowledge</td><td>' + data.productKnowledge + '</td><td>' + data1.productKnowledgeWeightage + '</td></tr>');
-                            $('#fullRowScoreCardTable tr:last').after('<tr><td>Product Knowledge Score</td><td>' + data.productKnowledgeScore + '</td><td>' + data1.productKnowledgeScoreWeightage + '</td></tr>');
+                            $('#fullRowScoreCardTable tr:last').after('<tr><td>Product Knowledge</td><td>' + data.productKnowledge + '</td><td>'+data1.productKnowledgeWeightage+'</td></tr>');
+                            $('#fullRowScoreCardTable tr:last').after('<tr><td>Product Knowledge Score</td><td>' + data.productKnowledgeScore + '</td><td>'+data1.productKnowledgeScoreWeightage+'</td></tr>');
 
-                            $('#fullRowScoreCardTable tr:last').after('<tr><td>Customer Service Quality</td><td>' + data.customerServiceQuality + '</td><td>' + data1.csqWeightage + '</td></tr>');
-                            $('#fullRowScoreCardTable tr:last').after('<tr><td>Customer Service Score</td><td>' + data.customerServiceScore + '</td><td>' + data1.csqScoreWeightage + '</td></tr>');
+                            $('#fullRowScoreCardTable tr:last').after('<tr><td>Customer Service Quality</td><td>' + data.customerServiceQuality + '</td><td>'+data1.csqWeightage+'</td></tr>');
+                            $('#fullRowScoreCardTable tr:last').after('<tr><td>Customer Service Score</td><td>' + data.customerServiceScore + '</td><td>'+data1.csqScoreWeightage+'</td></tr>');
 
-                            $('#fullRowScoreCardTable tr:last').after('<tr><td>Sentiment Weightage</td><td>' + data.sentimentWeightage + '</td><td>' + data1.sentimentWeigtage + '</td></tr>');
+                            $('#fullRowScoreCardTable tr:last').after('<tr><td>Sentiment Weightage</td><td>' + data.sentimentWeightage + '</td><td>'+data1.sentimentWeigtage+'</td></tr>');
                             $('#fullRowScoreCardTable tr:last').after('<tr><th>Sum Of Scores</th><th>' + data.sumOfScores + '</th><th>100</th></tr>');
                             gauge5.update(data.sumOfScores);
 
@@ -883,12 +869,12 @@ and open the template in the editor.
                             .append("g")
                             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-                    active_link = "0"; //to control legend selections and hover
-                    legendClicked; //to control legend selections
-                    legendClassArray = []; //store legend classes to select bars in plotSingle()
-                    legendClassArray_orig = []; //orig (with spaces)
-                    sortDescending; //if true, bars are sorted by height in descending order
-                    restoreXFlag = false; //restore order of bars back to original
+                    var active_link = "0"; //to control legend selections and hover
+                    var legendClicked; //to control legend selections
+                    var legendClassArray = []; //store legend classes to select bars in plotSingle()
+                    var legendClassArray_orig = []; //orig (with spaces)
+                    var sortDescending; //if true, bars are sorted by height in descending order
+                    var restoreXFlag = false; //restore order of bars back to original
 
 
                     //disable sort checkbox
@@ -1027,16 +1013,16 @@ and open the template in the editor.
                                 .attr("y", function (d) {
                                     height_diff = height_diff + y(d.y0) - y(d.y1) - (y(0) - y(d.value));
                                     y_corrected = y(d.y1) + height_diff;
-                                    d.y_corrected = y_corrected; //store in d for later use in restorePlot()
-                                
+                                    d.y_corrected = y_corrected //store in d for later use in restorePlot()
+
                                     if (d.name === "Negative")
-                                    {console.log(height_diff);height_diff = 0;} //reset for next d.mystate
+                                    {height_diff = 0;} //reset for next d.mystate
 
                                     return y_corrected;
                                     // return y(d.y1);  //orig, but not accurate  
                                 })
                                 .attr("x", function (d) { //add to stock code
-                                    return x(d.mystate)
+                                    return x(d.mystate);
                                 })
                                 .attr("height", function (d) {
                                     //return y(d.y0) - y(d.y1); //heights calculated based on stacked values (inaccurate)
@@ -1093,7 +1079,6 @@ and open the template in the editor.
                                     $('#col3_filter').click();
                                     $('#col2_filter').focus();
                                     $('#col2_filter').click();
-                                    
                                 });
 
 
@@ -1153,8 +1138,8 @@ and open the template in the editor.
                                         }
 
                                         //enable sort checkbox
-                                        d3.select("label").select("input").property("disabled", false)
-                                        d3.select("label").style("color", "black")
+                                        d3.select("label").select("input").property("disabled", false);
+                                        d3.select("label").style("color", "black");
                                         //sort the bars if checkbox is clicked            
                                         d3.select("input").on("change", change);
 
@@ -1277,21 +1262,21 @@ and open the template in the editor.
                                         .delay(750)
                                         .attr("y", y_new);
 
-                            })
+                            });
 
                         }
 
                         //adapted change() fn in http://bl.ocks.org/mbostock/3885705
                         function change() {
-                           
-                            alert(legendClassArray_orig[sortBy]);
+                            
                             if (this.checked)
-                                sortDescending = true;
+                            { alert("change");
+                                sortDescending = true;}
                             else
                                 sortDescending = false;
 
                             colName = legendClassArray_orig[sortBy];
-                          
+
                             var x0 = x.domain(data.sort(sortDescending
                                     ? function (a, b) {
                                         return b[colName] - a[colName];
@@ -1677,6 +1662,10 @@ and open the template in the editor.
 
                             var text = svg.append("text");
 
+
+
+
+
                             path.append("text");
                             obj3.forEach(function (obj22, i) {
 
@@ -1834,7 +1823,6 @@ and open the template in the editor.
                 }
             }
 
-
         </script>
 
         <title>CSAT Sentiment Analysis</title>
@@ -1861,9 +1849,9 @@ and open the template in the editor.
         </svg>
     </center>
     <div class="center"><center><h4>Please select the algorithm to view the result</h4><select id="aioConceptName" name="myselect" onchange="redirectMe(this);">
-                <option value="file_StanfordNLP.txt">Stanford NLP</option>
-                <option value="file_StanfordNLPWithLemmatization.txt">Stanford with Lemmatization</option>
-                <option value="file_Sentiwordnet.txt">Sentiwordnet</option>
+                <option value="https://dscollaboration.dsone.3ds.com/sites/DS-WWSupport/ENOVIA-VPLM/AG_Support_Ops/Sandbox/CSAT_Sentiment_Analysis_Visualization/Documents/JSON/file_StanfordNLP.txt">Stanford NLP</option>
+                <option value="https://dscollaboration.dsone.3ds.com/sites/DS-WWSupport/ENOVIA-VPLM/AG_Support_Ops/Sandbox/CSAT_Sentiment_Analysis_Visualization/Documents/JSON/file_StanfordNLPWithLemmatization.txt">Stanford with Lemmatization</option>
+                <option value="https://dscollaboration.dsone.3ds.com/sites/DS-WWSupport/ENOVIA-VPLM/AG_Support_Ops/Sandbox/CSAT_Sentiment_Analysis_Visualization/Documents/JSON/file_Sentiwordnet.txt">Sentiwordnet</option>
             </select></center> </div>
 
     <div id="myBody">
