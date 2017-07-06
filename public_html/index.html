@@ -30,12 +30,7 @@ and open the template in the editor.
             .liquidFillGaugeText { font-family: Helvetica; font-weight: bold; }
 
 
-            body {
-                background: -webkit-linear-gradient(left, #ffffff, #F4F1F1); /* For Safari 5.1 to 6.0 */
-                background: -o-linear-gradient(right, #ffffff, #F4F1F1); /* For Opera 11.1 to 12.0 */
-                background: -moz-linear-gradient(right, #ffffff, #F4F1F1); /* For Firefox 3.6 to 15 */
-                background: linear-gradient(to right, #ffffff, #F4F1F1); /* Standard syntax (must be last) */
-            }
+            
 
             table {
                 border-collapse: collapse;
@@ -97,17 +92,18 @@ and open the template in the editor.
             }
 
             path.link.twofive {
-                opacity: 0.25;
+                opacity: 1.00;
                 stroke: #00FF00;
+                
             }
 
             path.link.fivezero {
-                opacity: 0.50;
+                opacity: 1.00;
                 stroke:#FFFF00;    
             }
 
             path.link.sevenfive {
-                opacity: 0.75;
+                opacity: 1.00;
                 stroke:#FBCA04;
             }
 
@@ -127,7 +123,9 @@ and open the template in the editor.
                 cursor: pointer;
             }
 
-            .container { white-space: nowrap;}
+            .container { white-space: nowrap;
+            
+            }
             .column { display: inline-block; width: 50%;}
             .center {
                 margin: auto;
@@ -139,6 +137,12 @@ and open the template in the editor.
         <script>
             var gauge3 = null;
 
+            $("#clsGraph").click(
+                    function () {
+                        $("#stackedBarChart").empty();
+                        redirectMe();
+
+                    });
 
 
             function filterGlobal() {
@@ -168,13 +172,16 @@ and open the template in the editor.
                 redirectMe();
                 $("#clsGraph").click(
                         function () {
-                            alert("Handler for .click() called.");
+                           
                             active_link = "0"; //to control legend selections and hover
                             legendClicked; //to control legend selections
                             legendClassArray = []; //store legend classes to select bars in plotSingle()
                             legendClassArray_orig = []; //orig (with spaces)
                             sortDescending; //if true, bars are sorted by height in descending order
                             restoreXFlag = false; //restore order of bars back to original
+                            $("#stackedBarChart").empty();
+                            redirectMe();
+
                         });
             });
 
@@ -224,7 +231,7 @@ and open the template in the editor.
 
                 var myvar = '<center>' +
                         '                <h2>Stacked Bar Chart Sum Of Scores vs Sentiments</h2>' +
-                        '                <div id="stackedBarChart"> <center> <label><input type="checkbox"> Sort values</label></center><input type="button" value="Click me" id="clsGraph"/></div>' +
+                        '                <div id="stackedBarChart"> <center> <label><input type="checkbox"> Sort values</label></center></div>' +
                         '            </center>' +
                         '            <center><h2>Search Table</h2></center> ' +
                         '            <table cellpadding="3" cellspacing="0" border="0" style="width: 67%; margin: 0 auto 2em auto;">' +
@@ -1028,9 +1035,12 @@ and open the template in the editor.
                                     height_diff = height_diff + y(d.y0) - y(d.y1) - (y(0) - y(d.value));
                                     y_corrected = y(d.y1) + height_diff;
                                     d.y_corrected = y_corrected; //store in d for later use in restorePlot()
-                                
+
                                     if (d.name === "Negative")
-                                    {console.log(height_diff);height_diff = 0;} //reset for next d.mystate
+                                    {
+                                        console.log(height_diff);
+                                        height_diff = 0;
+                                    } //reset for next d.mystate
 
                                     return y_corrected;
                                     // return y(d.y1);  //orig, but not accurate  
@@ -1093,7 +1103,7 @@ and open the template in the editor.
                                     $('#col3_filter').click();
                                     $('#col2_filter').focus();
                                     $('#col2_filter').click();
-                                    
+
                                 });
 
 
@@ -1153,7 +1163,7 @@ and open the template in the editor.
                                         }
 
                                         //enable sort checkbox
-                                        d3.select("label").select("input").property("disabled", false)
+                                        d3.select("label").select("input").property("disabled", false);
                                         d3.select("label").style("color", "black")
                                         //sort the bars if checkbox is clicked            
                                         d3.select("input").on("change", change);
@@ -1283,15 +1293,15 @@ and open the template in the editor.
 
                         //adapted change() fn in http://bl.ocks.org/mbostock/3885705
                         function change() {
-                           
-                            alert(legendClassArray_orig[sortBy]);
+
+                       
                             if (this.checked)
                                 sortDescending = true;
                             else
                                 sortDescending = false;
 
                             colName = legendClassArray_orig[sortBy];
-                          
+
                             var x0 = x.domain(data.sort(sortDescending
                                     ? function (a, b) {
                                         return b[colName] - a[colName];
@@ -1652,8 +1662,8 @@ and open the template in the editor.
                                     .attr("viewBox", "0 -5 10 10")
                                     .attr("refX", 15)
                                     .attr("refY", -1.5)
-                                    .attr("markerWidth", 6)
-                                    .attr("markerHeight", 6)
+                                    .attr("markerWidth", 12)
+                                    .attr("markerHeight", 12)
                                     .attr("orient", "auto")
                                     .append("svg:path")
                                     .attr("d", "M0,-5L10,0L0,5");
